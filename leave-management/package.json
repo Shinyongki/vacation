@@ -1,0 +1,36 @@
+{
+  "name": "leave-management",
+  "version": "1.0.0",
+  "description": "재단법인 경상남도사회서비스원 휴가관리 시스템",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node server/index.js",
+    "client": "vite",
+    "build": "vite build",
+    "build-sea": "node scripts/build-sea.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "exceljs": "^4.4.0",
+    "pdfkit": "^0.15.0",
+    "archiver": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.0",
+    "axios": "^1.7.7",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.460.0",
+    "concurrently": "^9.1.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "@vitejs/plugin-react": "^4.3.4"
+  }
+}

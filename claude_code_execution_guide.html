@@ -1,0 +1,614 @@
+<h2 class="sr-only">Claude Code 실행 가이드 — Phase별 에이전트 프롬프트와 실행 순서</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.phase-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.phase-tab { padding: 8px 16px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 13px; color: var(--color-text-secondary); font-weight: 400; transition: all 0.15s; }
+.phase-tab:hover { background: var(--color-background-secondary); }
+.phase-tab.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
+.phase-content { display: none; }
+.phase-content.active { display: block; }
+.info-bar { display: flex; gap: 12px; align-items: center; margin-bottom: 1.5rem; padding: 10px 16px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary); flex-wrap: wrap; }
+.info-tag { font-weight: 500; color: var(--color-text-primary); }
+.agent-card { margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.agent-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--color-background-secondary); cursor: pointer; user-select: none; }
+.agent-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.agent-badge { font-size: 11px; padding: 2px 10px; border-radius: 999px; }
+.badge-core { background: var(--color-background-info); color: var(--color-text-info); }
+.badge-parallel { background: var(--color-background-success); color: var(--color-text-success); }
+.badge-solo { background: var(--color-background-warning); color: var(--color-text-warning); }
+.agent-body { display: none; padding: 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+.agent-body.open { display: block; }
+.prompt-block { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; line-height: 1.65; color: var(--color-text-primary); white-space: pre-wrap; word-break: break-word; position: relative; margin-bottom: 12px; max-height: 400px; overflow-y: auto; }
+.copy-btn { position: absolute; top: 8px; right: 8px; padding: 4px 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); font-size: 11px; color: var(--color-text-secondary); cursor: pointer; z-index: 2; }
+.copy-btn:hover { background: var(--color-background-secondary); }
+.copy-btn.copied { color: var(--color-text-success); border-color: var(--color-border-success); }
+.gate-check { margin-top: 8px; padding: 12px 16px; background: var(--color-background-warning); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-warning); }
+.gate-title { font-weight: 500; margin-bottom: 6px; }
+.gate-item { padding: 2px 0; }
+.note { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 12px; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-info); color: var(--color-text-info); font-size: 11px; font-weight: 500; margin-right: 6px; flex-shrink: 0; }
+.prereq { padding: 10px 16px; margin-bottom: 1rem; border-left: 3px solid var(--color-border-info); background: var(--color-background-secondary); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; font-size: 13px; color: var(--color-text-secondary); }
+</style>
+
+<div style="padding: 0.5rem 0;">
+
+<div class="phase-tabs" id="tabs">
+  <button class="phase-tab active" data-phase="setup">사전 준비</button>
+  <button class="phase-tab" data-phase="p0">Phase 0</button>
+  <button class="phase-tab" data-phase="p1">Phase 1</button>
+  <button class="phase-tab" data-phase="p2">Phase 2</button>
+  <button class="phase-tab" data-phase="p3">Phase 3</button>
+  <button class="phase-tab" data-phase="p4">Phase 4</button>
+</div>
+
+<!-- 사전 준비 -->
+<div class="phase-content active" id="phase-setup">
+  <div class="info-bar">
+    <span class="info-tag">사전 준비</span>
+    <span>Claude Code 실행 전에 프로젝트 폴더 구성</span>
+  </div>
+  
+  <div class="note">
+    <span class="step-num">1</span> 프로젝트 루트에 <code>CLAUDE.md</code> 배치 (업데이트된 버전)
+  </div>
+  <div class="note">
+    <span class="step-num">2</span> <code>docs/</code> 폴더에 참조 문서 6개 배치
+  </div>
+  
+  <div class="prompt-block" style="font-family: var(--font-mono); font-size: 12px;">leave-management/
+├── CLAUDE.md
+└── docs/
+    ├── work-instruction-v2.md
+    ├── prd-v1.2.md
+    ├── ia-v1.2.md
+    ├── usecase-v1.2.md
+    ├── design-guide-v1.0.md
+    └── data-integrity-guide.md</div>
+  
+  <div class="note">
+    <span class="step-num">3</span> Claude Code에서 프로젝트 열기: <code>cd leave-management</code>
+  </div>
+  <div class="note" style="margin-top: 8px;">
+    Claude Code가 <code>CLAUDE.md</code>를 자동으로 읽고, 에이전트 프롬프트에서 <code>docs/</code> 참조 시 해당 파일을 열어봅니다.
+  </div>
+</div>
+
+<!-- Phase 0 -->
+<div class="phase-content" id="phase-p0">
+  <div class="info-bar">
+    <span class="info-tag">Phase 0</span>
+    <span>단독 실행</span>
+    <span>|</span>
+    <span>에이전트 1개</span>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">공통 기반 — 프로젝트 초기화</span>
+      <span class="agent-badge badge-solo">단독</span>
+    </div>
+    <div class="agent-body open">
+      <div class="prompt-block" id="prompt-p0">프로젝트 초기화를 수행해 주세요.
+
+1. /leave-management 디렉토리 생성
+2. package.json 초기화 + 의존성 설치:
+   - express, better-sqlite3, jsonwebtoken, bcryptjs, cors
+   - exceljs, pdfkit, archiver, multer, node-cron
+   - react, react-dom, react-router-dom, axios, date-fns, lucide-react
+   - vite, @vitejs/plugin-react (dev)
+3. 작업 지시서 §1.1의 DB 스키마(18개 테이블) 전체를 schema.sql로 생성
+4. §1.2의 초기 데이터를 seed.sql로 생성
+5. server/database/connection.js 작성 (better-sqlite3 싱글턴, WAL 모드, foreign_keys ON)
+6. server/middleware/auth.js 작성 (JWT 검증, req.user 설정)
+7. server/middleware/rbac.js 작성 (requireRole(...roles) 함수)
+8. server/middleware/errorHandler.js 작성
+9. client/src/api/client.js 작성 (axios 인스턴스, JWT 인터셉터, 401 리다이렉트)
+10. server/index.js 뼈대 작성 (Express 앱 생성, 미들웨어, 라우트 플레이스홀더)
+11. vite.config.js 작성 (프록시: /api → localhost:3001)
+
+참조: docs/work-instruction-v2.md §1 DB 스키마 전체
+<button class="copy-btn" onclick="copyPrompt('prompt-p0', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="gate-check">
+    <div class="gate-title">Phase 0 완료 확인</div>
+    <div class="gate-item">□ 18개 테이블 생성 확인 (schema.sql)</div>
+    <div class="gate-item">□ 시드 데이터 삽입 확인 (데모 계정 5명)</div>
+    <div class="gate-item">□ connection.js WAL 모드 + foreign_keys ON</div>
+    <div class="gate-item">□ npm install 완료, 서버 기동 확인</div>
+  </div>
+</div>
+
+<!-- Phase 1 -->
+<div class="phase-content" id="phase-p1">
+  <div class="info-bar">
+    <span class="info-tag">Phase 1</span>
+    <span>4개 병렬 실행</span>
+    <span>|</span>
+    <span>에이전트 4개 동시</span>
+  </div>
+  
+  <div class="prereq">Phase 0 완료 후 실행. 4개 에이전트를 동시에 띄워서 각각에게 아래 프롬프트를 전달합니다.</div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track A — 인증 + 사용자 관리</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-1a">Track A: 인증 + 사용자 관리를 구현해 주세요.
+
+파일 생성:
+- server/routes/auth.js
+- client/src/contexts/AuthContext.jsx
+- client/src/components/auth/LoginPage.jsx
+- client/src/components/auth/PasswordChangeModal.jsx
+- client/src/components/auth/ProtectedRoute.jsx
+
+API 5개:
+- POST /api/auth/login (사번+비밀번호→JWT, 역할별 리다이렉트, inactive 차단)
+- POST /api/auth/logout
+- PUT /api/auth/password (현재 확인→새 해싱→is_initial_password=0)
+- GET /api/auth/me (현재 사용자 정보)
+- PUT /api/auth/absence (team_lead/director만, is_absent+absent_return_date)
+
+LoginPage: 사번+비밀번호 입력, 데모 계정 안내(접이식)
+PasswordChangeModal: 초기 비밀번호 시 강제 표시(닫기 불가)
+
+디자인: docs/design-guide-v1.0.md §2~§5 참조
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-1a', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track B — 연차 계산 엔진</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-1b">Track B: 연차 계산 엔진 + 잔여일수 API를 구현해 주세요.
+
+파일 생성:
+- server/services/leaveCalculator.js
+- server/routes/balances.js
+- server/utils/dateUtils.js
+- server/utils/holidays.js
+
+leaveCalculator.js:
+- calculateAnnualLeave(hire_date, target_year) → { total_days, calc_detail }
+- 규칙: 1년 미만 월 1일 / 1년+ 15일 / 3년+ 2년마다 +1 / 최대 25일
+- calc_detail에 JSON으로 계산 과정 기록
+
+API 3개:
+- GET /api/balances/me (내 잔여일수 + 계산 근거)
+- GET /api/balances/team (팀원 잔여일수, 팀장 이상)
+- POST /api/balances/adjust (HR만, 사유 필수, balance_adjustments INSERT)
+
+holidays.js: 공휴일·자체휴일 조회, 날짜 범위에서 휴일 제외 계산
+dateUtils.js: 근속연수 계산, 날짜 차이, 영업일 계산
+
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-1b', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track C — 프론트엔드 쉘 + 공통 컴포넌트</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-1c">Track C: 프론트엔드 쉘 + 공통 컴포넌트를 구현해 주세요.
+
+파일 생성:
+- client/src/App.jsx (전체 라우팅 구조)
+- client/src/components/common/Sidebar.jsx
+- client/src/components/common/NotificationBell.jsx (벨 아이콘 + 배지만, 패널은 Track G)
+- client/src/components/common/AbsenceToggle.jsx
+- client/src/components/common/Badge.jsx
+- client/src/components/common/Calendar.jsx
+- client/src/components/common/DataTable.jsx
+- client/src/components/common/Modal.jsx
+- client/src/components/common/ProgressBar.jsx
+- client/src/components/common/StatusBadge.jsx
+- client/src/components/common/DatePicker.jsx
+- client/src/components/common/TimePicker.jsx
+- client/src/components/common/GuideCard.jsx (노란 가이드 카드)
+- client/src/components/common/ApprovalDots.jsx (결재 진행 도트)
+- client/src/styles/global.css
+- client/src/hooks/useAuth.js
+- client/src/hooks/useApi.js
+
+디자인 가이드(docs/design-guide-v1.0.md) 전체 규격 엄격 준수:
+- 상단 헤더 44px 네이비(#1B3A5C)
+- 경로 바 28px (#EEF1F5)
+- 사이드바 192px (#F6F7F9), 아코디언 그룹, 역할별 동적 메뉴
+- 카드: 0.5px 보더 #DDE1E7, 8px 라운드
+- 테이블: 8px 라운드, 헤더 #F3F5F7, 행 구분 0.5px #EEF0F2
+- 배지: pill, 의미 색상 (디자인 가이드 §2.2)
+- 버튼: Primary(#1B5E9E)/Secondary/Danger/Ghost, 6px 라운드
+- 시스템 폰트 (font-family: -apple-system, "Malgun Gothic", sans-serif)
+
+Sidebar 역할별 메뉴 (docs/ia-v1.2.md §2.2 참조):
+- 직원: 대시보드, 휴가 신청, 내 휴가 목록, 팀 캘린더, 휴가 규정
+- 팀장: + 승인 관리, 팀원 현황
+- 원장: + 전체 현황, 보고서
+- HR관리자: 전체 + 관리자 설정
+- 재단담당자: 시설 현황, 보고서, 데이터 검증
+
+⚠️ 다른 Track 파일 수정 금지. 라우트 대상 컴포넌트는 플레이스홀더로 생성.
+<button class="copy-btn" onclick="copyPrompt('prompt-1c', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track D — 관리자 CRUD</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-1d">Track D: 관리자 CRUD (HR관리자 전용)를 구현해 주세요.
+
+파일 생성:
+- server/routes/admin.js (22개 엔드포인트)
+- client/src/components/admin/AdminSettings.jsx (탭 컨테이너)
+- client/src/components/admin/EmployeeManagement.jsx (S-01)
+- client/src/components/admin/LeaveTypeSettings.jsx (S-02, 고용형태별 휴가 매핑 포함)
+- client/src/components/admin/ApprovalFlowSettings.jsx (S-03)
+- client/src/components/admin/DelegateManagement.jsx (S-04)
+- client/src/components/admin/HolidayManagement.jsx (S-05)
+- client/src/components/admin/SystemSettings.jsx (S-06)
+- client/src/components/admin/BalanceManagement.jsx (S-07)
+- client/src/components/admin/ExcelUploadModal.jsx (S-08)
+
+직원 등록 필드 11개: 사번, 이름, 부서, 직위, 역할, 입사일, 생년월일, 성별(M/F), 연락처, 고용형태(regular/contract)
+- 초기 비밀번호 = birth_date 6자리 bcrypt 해싱
+- 등록 시 leave_balances 자동 생성
+퇴사 처리: status→inactive, resignation_date 자동 기록, 결재라인 제외
+고용형태별 휴가 매핑: employment_type_leave_mapping CRUD (S-02 하단 체크박스 테이블)
+
+디자인: docs/design-guide-v1.0.md §5.12(직원 등록폼), §5.13(고용형태별 설정) 참조
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-1d', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="gate-check">
+    <div class="gate-title">Phase 1 Gate Check — 모두 확인 후 Phase 2</div>
+    <div class="gate-item">□ auth API 5개 동작 (curl 테스트)</div>
+    <div class="gate-item">□ 로그인 → 역할별 대시보드 리다이렉트 (프론트)</div>
+    <div class="gate-item">□ leaveCalculator 단위 테스트 (입사일별 연차 계산)</div>
+    <div class="gate-item">□ balances API 3개 동작</div>
+    <div class="gate-item">□ Sidebar 역할별 메뉴 렌더링</div>
+    <div class="gate-item">□ 공통 컴포넌트 렌더링 (DataTable, Modal, Badge 등)</div>
+    <div class="gate-item">□ admin API 22개 동작</div>
+    <div class="gate-item">□ 직원 등록(11필드) → 로그인 가능 확인</div>
+    <div class="gate-item">□ 고용형태별 휴가 매핑 CRUD 동작</div>
+  </div>
+</div>
+
+<!-- Phase 2 -->
+<div class="phase-content" id="phase-p2">
+  <div class="info-bar">
+    <span class="info-tag">Phase 2</span>
+    <span>3개 병렬 실행</span>
+    <span>|</span>
+    <span>에이전트 3개 동시</span>
+  </div>
+  
+  <div class="prereq">Phase 1 Gate Check 완료 후 실행.</div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track E — 휴가 신청 + 결재 ⭐ 핵심</span>
+      <span class="agent-badge badge-core">핵심</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-2e">Track E: 휴가 신청 + 결재 엔진을 구현해 주세요. 이 시스템의 핵심 기능입니다.
+
+파일 생성:
+- server/routes/leaves.js (7개 엔드포인트)
+- server/routes/approvals.js (5개 엔드포인트)
+- server/services/approvalEngine.js
+- client/src/components/leave/LeaveForm.jsx (L-03, 3단계 폼)
+- client/src/components/leave/LeaveList.jsx (L-01)
+- client/src/components/leave/LeaveDetail.jsx (L-02, 결재 상세 모달 포함)
+- client/src/components/leave/CancelConfirmModal.jsx (L-04)
+- client/src/components/leave/RecallConfirmModal.jsx (L-05)
+- client/src/components/approval/ApprovalList.jsx (A-01)
+- client/src/components/approval/ApprovalHistory.jsx (A-02)
+- client/src/components/approval/RejectModal.jsx (A-03)
+- client/src/components/approval/BatchApproveModal.jsx (A-04)
+
+핵심 구현:
+1. 신청 폼 3단계:
+   - 1단계: 유형 선택 (성별 필터링 + 고용형태 필터링)
+   - 2단계: 날짜/시간 (공휴일 제외, 시간연차 점심 제외)
+   - 3단계: 확인 + 열람 범위(팀별 체크박스) + 사유 + 긴급/사후 + 상신
+   → leave_requests INSERT + leave_request_visibility INSERT + approval_steps 생성
+
+2. 결재 엔진 (approvalEngine.js):
+   - createApprovalSteps(): 결재 라인 → approval_steps 생성
+   - processApproval(): 승인/반려, 스냅샷, 다음 단계 알림
+   - 최종 승인 시 트랜잭션: status=approved + used_days 차감
+
+3. 회수 (POST /recall): pending→recalled, approval_steps 초기화
+4. 재기안 (POST /redraft from recalled): 데이터 복사 → 새 건 (parent_request_id)
+5. 재상신 (POST /redraft from rejected): 데이터 복사 + 반려 사유 표시
+
+6. 결재 진행 UI:
+   - 테이블 인라인: ApprovalDots (●—●—○)
+   - 클릭 시 모달: 타임라인 (열람시각/결재시각 분리, 대결 표시, 반려 사유)
+
+상태 전이: draft→pending→approved|rejected|recalled|cancelled
+비즈니스 규칙: docs/work-instruction-v2.md §5 체크리스트 전체 참조
+
+⚠️ 알림 발송은 notificationService.notify() 호출만 (구현은 Track G)
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-2e', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track F — 대시보드 5종</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-2f">Track F: 역할별 대시보드 5종을 구현해 주세요.
+
+파일 생성:
+- server/routes/dashboard.js (5개 엔드포인트)
+- client/src/components/dashboard/DashboardRouter.jsx
+- client/src/components/dashboard/StaffDashboard.jsx (D-01)
+- client/src/components/dashboard/TeamLeadDashboard.jsx (D-02)
+- client/src/components/dashboard/DirectorDashboard.jsx (D-03)
+- client/src/components/dashboard/HRDashboard.jsx (D-04)
+- client/src/components/dashboard/FoundationDashboard.jsx (D-05)
+
+각 대시보드 데이터:
+- D-01 직원: 잔여연차(36px #1B5E9E), 계산근거 테이블, 최근 신청, 가이드카드
+- D-02 팀장: 팀 출근현황, 승인대기 건수 배지, 최근 요청, 캘린더 미니뷰
+- D-03 원장: 할 일 요약(대기N/오래된N), 대기기간(7일+ 빨간), 출근율
+- D-04 HR: 시스템 요약, 최근 변동, 설정 바로가기
+- D-05 재단: 시설 현황(열람전용), 부서별 사용률, 열람근거 배너
+
+디자인: docs/design-guide-v1.0.md 혼합 디자인 확정안 참조
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-2f', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track G — 알림 시스템</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-2g">Track G: 알림 시스템(9가지 유형 + 브라우저 알림)을 구현해 주세요.
+
+파일 생성:
+- server/routes/notifications.js (3개 엔드포인트)
+- server/services/notificationService.js
+- client/src/components/common/NotificationPanel.jsx
+- client/src/contexts/NotificationContext.jsx
+
+notificationService.js:
+- notify(employee_id, type, params) → notifications INSERT
+- 9가지 유형: approval_request, approved, rejected, delegate_request,
+  cancelled, urgent, auto_delegate, unprocessed_warning, recalled
+- 각 유형별 제목/메시지 템플릿 + target_url
+
+API 3개:
+- GET /api/notifications (?unread=true, 최신순, 페이지네이션)
+- PUT /api/notifications/:id/read
+- PUT /api/notifications/read-all
+
+NotificationPanel: 슬라이드 패널, 읽음/안읽음, 클릭→target_url 이동
+
+브라우저 알림 (Web Notification API):
+- 로그인 후 Notification.requestPermission()
+- NotificationContext에서 30초마다 GET /notifications?unread=true 폴링
+- 새 알림 감지 시 new Notification(title, { body }) → 바탕화면 팝업
+- 팝업 클릭 시 window.focus() + target_url 이동
+
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-2g', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="gate-check">
+    <div class="gate-title">Phase 2 Gate Check — 모두 확인 후 Phase 3</div>
+    <div class="gate-item">□ 휴가 신청 → 결재 → 승인 전체 흐름 동작</div>
+    <div class="gate-item">□ 회수 → 재기안 흐름 동작</div>
+    <div class="gate-item">□ 반려 → 재상신 흐름 동작 (반려 사유 표시)</div>
+    <div class="gate-item">□ 열람 범위 설정 → 승인 후 캘린더 반영 확인</div>
+    <div class="gate-item">□ 성별 검증 (남성 → 생리휴가 비활성화)</div>
+    <div class="gate-item">□ 고용형태 검증 (계약직 → 미허용 유형 비활성화)</div>
+    <div class="gate-item">□ 결재 진행 도트 + 상세 모달 동작</div>
+    <div class="gate-item">□ 5종 대시보드 각각 데이터 표시</div>
+    <div class="gate-item">□ 알림 9가지 유형 발송·표시·읽음 동작</div>
+    <div class="gate-item">□ 브라우저 알림 팝업 동작</div>
+  </div>
+</div>
+
+<!-- Phase 3 -->
+<div class="phase-content" id="phase-p3">
+  <div class="info-bar">
+    <span class="info-tag">Phase 3</span>
+    <span>2개 병렬 실행</span>
+    <span>|</span>
+    <span>에이전트 2개 동시</span>
+  </div>
+  
+  <div class="prereq">Phase 2 Gate Check 완료 후 실행.</div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track H — 보고서 + 데이터 검증</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-3h">Track H: 보고서 생성 + 데이터 무결성 검증을 구현해 주세요.
+
+파일 생성:
+- server/routes/reports.js (3개)
+- server/routes/verification.js (3개)
+- server/services/reportGenerator.js
+- server/services/verificationService.js
+- client/src/components/report/ReportView.jsx (R-01, R-02)
+- client/src/components/verification/VerificationView.jsx (탭 컨테이너)
+- client/src/components/verification/ReportVerify.jsx (X-01)
+- client/src/components/verification/ExportHistory.jsx (X-02)
+- client/src/components/verification/AdjustmentHistory.jsx (X-03)
+
+reportGenerator: exceljs(엑셀) + pdfkit(PDF) + archiver(zip)
+- PDF 마지막 페이지: 생성일시, 생성자, 기간, 요약, 검증코드
+- 검증코드 = SHA-256(data + system_secret) → 16자리 하이폰 구분
+- export_logs INSERT (INSERT only 트리거)
+
+verification API (재단담당자 전용):
+- POST /verify: 검증코드 → export_logs 대조 → 원본확인/변경감지
+- GET /export-logs: 기간 필터, 동일기간 반복 경고
+- GET /adjustment-logs: 기간·직원·조정자 필터, 대량조정 경고
+
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-3h', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">Track I — 대결 + 스케줄러</span>
+      <span class="agent-badge badge-parallel">병렬</span>
+    </div>
+    <div class="agent-body">
+      <div class="prompt-block" id="prompt-3i">Track I: 대결 라우팅 + 스케줄러를 구현해 주세요.
+
+파일 생성:
+- server/services/delegateRouter.js
+- server/services/scheduler.js
+
+delegateRouter.js:
+- routeToDelegate(step_id): 부재 확인 → 1순위 → 2순위 → 대기
+- checkUrgencyAndRoute(request_id): 동적 전환시간 결정
+  긴급(1일이내) 즉시 / 단기(2~3일) 8시간 / 일반(4일+) 24시간
+
+scheduler.js (node-cron):
+- */30 * * * * : 미처리 자동 대결 전환
+  - 50% 경과 → unprocessed_warning 알림
+  - 100% 경과 → routeToDelegate() 호출
+- 0 0 * * * : 부재 복귀 예정일 자동 해제
+  - is_absent=true AND absent_return_date < today → 해제
+- 0 0 1 1 * : 연차 자동 계산 (연초)
+
+⚠️ notificationService.notify() 호출로 알림 발송 (Track G에서 구현 완료)
+⚠️ 다른 Track 파일 수정 금지
+<button class="copy-btn" onclick="copyPrompt('prompt-3i', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="gate-check">
+    <div class="gate-title">Phase 3 Gate Check — 모두 확인 후 Phase 4</div>
+    <div class="gate-item">□ 보고서 내보내기 → zip(엑셀+PDF) 다운로드</div>
+    <div class="gate-item">□ PDF 마지막 페이지 검증 정보 확인</div>
+    <div class="gate-item">□ 검증코드 검증 동작 (일치/불일치)</div>
+    <div class="gate-item">□ 내보내기 이력 조회 + 동일기간 경고</div>
+    <div class="gate-item">□ 조정 이력 조회 + 대량조정 경고</div>
+    <div class="gate-item">□ 부재 설정 → 대결자 전환 동작</div>
+    <div class="gate-item">□ 미처리 자동 전환 (시간 경과 시뮬레이션)</div>
+    <div class="gate-item">□ 부재 예정일 경과 → 자동 해제</div>
+  </div>
+</div>
+
+<!-- Phase 4 -->
+<div class="phase-content" id="phase-p4">
+  <div class="info-bar">
+    <span class="info-tag">Phase 4</span>
+    <span>단독 실행</span>
+    <span>|</span>
+    <span>에이전트 1개</span>
+  </div>
+  
+  <div class="prereq">Phase 3 Gate Check 완료 후 실행. 모든 Track을 통합합니다.</div>
+  
+  <div class="agent-card">
+    <div class="agent-header" onclick="toggleAgent(this)">
+      <span class="agent-name">통합 + 캘린더 + 현황 + SEA 패키징</span>
+      <span class="agent-badge badge-solo">단독</span>
+    </div>
+    <div class="agent-body open">
+      <div class="prompt-block" id="prompt-p4">Phase 4: 전체 통합 + 캘린더 + 현황 + SEA 패키징을 수행해 주세요.
+
+1. server/index.js에 모든 라우트 등록 (9개 도메인)
+2. client/src/App.jsx에 모든 라우트 등록
+
+3. 남은 기능 구현:
+   - server/routes/calendar.js
+     GET /team: 열람 범위 기반 필터링 (leave_request_visibility JOIN)
+     GET /me: 내 캘린더
+   - client/src/components/status/TeamCalendar.jsx (V-01)
+   - client/src/components/status/TeamStatus.jsx (V-02)
+   - client/src/components/status/FullStatus.jsx (V-03)
+   - client/src/components/status/RegulationView.jsx (V-04)
+
+4. Express 정적 파일 서빙: dist/client/ → SPA 폴백
+5. DB 초기화 로직: 시작 시 schema.sql 실행 (테이블 없으면 생성)
+6. 스케줄러 시작
+7. 시작 메시지:
+   "휴가관리 시스템이 시작되었습니다"
+   "브라우저에서 접속: http://[IP]:3000"
+
+8. SEA 패키징:
+   - Vite 빌드 → dist/client/
+   - esbuild 서버 번들링 (better-sqlite3 native 모듈 주의)
+   - Node.js SEA → .exe
+
+9. 통합 테스트 (docs/work-instruction-v2.md §7 시나리오 1~6)
+<button class="copy-btn" onclick="copyPrompt('prompt-p4', this)">복사</button></div>
+    </div>
+  </div>
+  
+  <div class="gate-check">
+    <div class="gate-title">최종 확인</div>
+    <div class="gate-item">□ 시나리오 1: 직원등록 → 로그인 → 연차신청 → 결재 → 승인 → 캘린더</div>
+    <div class="gate-item">□ 시나리오 2: 회수 → 재기안 흐름</div>
+    <div class="gate-item">□ 시나리오 3: 반려 → 재상신 흐름</div>
+    <div class="gate-item">□ 시나리오 4: 성별·고용형태 검증</div>
+    <div class="gate-item">□ 시나리오 5: 보고서 내보내기 → 검증코드 확인</div>
+    <div class="gate-item">□ 시나리오 6: 부재 → 대결 전환 → 대결 처리</div>
+    <div class="gate-item">□ .exe 패키징 + 실행 확인</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.phase-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.phase-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.phase-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('phase-' + tab.dataset.phase).classList.add('active');
+  });
+});
+
+function toggleAgent(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function copyPrompt(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.textContent.replace('복사', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '완료';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+</script>

@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node -e \"const bcrypt = require\\('bcryptjs'\\); console.log\\(bcrypt.hashSync\\('000101', 10\\)\\);\")",
+      "Bash(node -e ':*)",
+      "Bash(node -e \"require\\('./server/utils/dateUtils'\\)\")",
+      "Bash(node -e \"const r = require\\('./server/routes/balances'\\); console.log\\('Router type:', typeof r, '- has stack:', !!r.stack\\); console.log\\('Routes:', r.stack.filter\\(l=>l.route\\).map\\(l=>l.route.path + ' ' + Object.keys\\(l.route.methods\\).join\\(','\\)\\)\\)\")",
+      "Bash(node -c \"C:/신용기/vacation/leave-management/server/routes/auth.js\")",
+      "Bash(npx vite:*)",
+      "Bash(rm -rf data)",
+      "Bash(node -e \"try { require\\('./server/services/delegateRouter'\\); console.log\\('delegateRouter: OK'\\); } catch\\(e\\) { console.log\\('delegateRouter error:', e.message\\); }\")",
+      "Bash(node -e \"try { require\\('./server/services/scheduler'\\); console.log\\('scheduler: OK'\\); } catch\\(e\\) { console.log\\('scheduler error:', e.message\\); }\")",
+      "Bash(node -c server/services/verificationService.js)",
+      "Bash(node -c server/services/reportGenerator.js)",
+      "Bash(node -c server/routes/reports.js)",
+      "Bash(node -c server/routes/verification.js)",
+      "Bash(ls server/routes/*.js)",
+      "Bash(node server/index.js)",
+      "Bash(pkill -f \"node server/index.js\")",
+      "Bash(npx kill-port:*)",
+      "Bash(taskkill //F //IM \"node.exe\")",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"employee_number\":\"2020001\",\"password\":\"000101\"}')",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\);const j=JSON.parse\\(d\\);console.log\\(j.data.token\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"employee_number\\\\\":\\\\\"2020001\\\\\",\\\\\"password\\\\\":\\\\\"000101\\\\\"}\")",
+      "Bash(rm -rf \"/c/신용기/vacation/leave-management/data\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"employee_number\":\"2021001\",\"password\":\"000101\"}')",
+      "Bash(node -pe \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0,'utf8'\\)\\); d.data.user.name + ' isInitial=' + d.data.user.isInitialPassword\")",
+      "Bash(gh auth:*)"
+    ]
+  }
+}
