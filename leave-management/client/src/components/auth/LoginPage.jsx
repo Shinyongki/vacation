@@ -4,11 +4,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import PasswordChangeModal from './PasswordChangeModal';
 
 const DEMO_ACCOUNTS = [
-  { number: '2024001', role: '직원 (staff)', name: '김신입' },
+  { number: '2024001', role: '직원 (staff)', name: '김직원' },
   { number: '2023001', role: '팀장 (team_lead)', name: '이팀장' },
-  { number: '2022001', role: '원장 (director)', name: '박원장' },
-  { number: '2021001', role: 'HR관리자 (hr_admin)', name: '정인사' },
-  { number: '2021002', role: '재단담당자 (foundation)', name: '최재단' }
+  { number: '2020001', role: '원장 (director)', name: '박원장' },
+  { number: '2022001', role: 'HR관리자 (hr_admin)', name: '최관리' },
+  { number: '2021001', role: '재단담당자 (foundation)', name: '정재단' }
 ];
 
 function getRoleRedirect(role) {
@@ -73,19 +73,27 @@ export default function LoginPage() {
     }
   };
 
+  const DEMO_PASSWORDS = {
+    '2024001': '6517',
+    '2023001': '850515',
+    '2020001': '750820',
+    '2022001': '900310',
+    '2021001': '801125',
+  };
+
   const handleDemoClick = (number) => {
     setEmployeeNumber(number);
-    setPassword('000101');
+    setPassword(DEMO_PASSWORDS[number] || '');
     setError('');
   };
 
   // 테스트 바로가기 — 클릭만으로 즉시 로그인
   const QUICK_LOGINS = [
-    { label: '사원', number: '2024001', password: '000101' },
-    { label: '팀장', number: '2023001', password: '000101' },
-    { label: '원장', number: '2020001', password: '000101' },
-    { label: '관리', number: '2022001', password: '000101' },
-    { label: '재단', number: '2021001', password: '000101' },
+    { label: '사원', number: '2024001', password: '6517' },
+    { label: '팀장', number: '2023001', password: '850515' },
+    { label: '원장', number: '2020001', password: '750820' },
+    { label: '관리', number: '2022001', password: '900310' },
+    { label: '재단', number: '2021001', password: '801125' },
   ];
 
   const handleQuickLogin = async (account) => {
@@ -214,7 +222,7 @@ export default function LoginPage() {
           {showDemo && (
             <div style={styles.demoList}>
               <div style={styles.demoHint}>
-                비밀번호: 000101 (클릭하면 자동 입력)
+                비밀번호: 생년월일 6자리 (클릭하면 자동 입력)
               </div>
               {DEMO_ACCOUNTS.map((account) => (
                 <button

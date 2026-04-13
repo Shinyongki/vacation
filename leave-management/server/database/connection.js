@@ -1,4 +1,5 @@
 const Database = require('better-sqlite3');
+const bcrypt = require('bcryptjs');
 const path = require('path');
 const fs = require('fs');
 
@@ -45,6 +46,9 @@ function initializeDatabase() {
       database.exec(seed);
     }
 
+    // 데모 계정 비밀번호를 생년월일 6자리(YYMMDD)로 해싱하여 업데이트
+    seedDemoPasswords(database);
+
     console.log('Database initialized with schema and seed data');
   }
 
@@ -55,6 +59,36 @@ function closeDatabase() {
   if (db) {
     db.close();
     db = null;
+  }
+}
+
+/**
+ * 데모 계정 비밀번호를 생년월일 6자리(YYMMDD)로 해싱하여 업데이트.
+ * 김직원(2024001)만 예외적으로 '6517' 사용.
+ */
+function seedDemoPasswords(database) {
+  const OVERRIDES = { '2024001': '6517' };
+
+  const employees = database.prepare(
+    "SELECT id, employee_number, birth_date FROM employees"
+  ).all();
+
+  const update = database.prepare(
+    "UPDATE employees SET password_hash = ?, is_initial_password = 0 WHERE id = ?"
+  );
+
+  for (const emp of employees) {
+    let plainPassword;
+    if (OVERRIDES[emp.employee_number]) {
+      plainPassword = OVERRIDES[emp.employee_number];
+    } else if (emp.birth_date) {
+      // birth_date 'YYYY-MM-DD' → YYMMDD
+      plainPassword = emp.birth_date.slice(2).replace(/-/g, '');
+    } else {
+      continue;
+    }
+    const hash = bcrypt.hashSync(plainPassword, 10);
+    update.run(hash, emp.id);
   }
 }
 
