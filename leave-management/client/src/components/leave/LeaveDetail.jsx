@@ -119,7 +119,7 @@ const LeaveDetail = () => {
   return (
     <div className="leave-detail">
       {/* Back button */}
-      <button className="btn btn--ghost" onClick={() => navigate('/leaves')} style={{ marginBottom: '16px' }}>
+      <button className="btn btn--ghost" onClick={() => navigate(-1)} style={{ marginBottom: '16px' }}>
         <ArrowLeft size={16} />
         목록으로
       </button>
@@ -140,180 +140,217 @@ const LeaveDetail = () => {
         </div>
       </div>
 
-      {/* Info card */}
-      <div className="card">
-        <div className="card__body">
-          <div className="leave-detail__info-grid">
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">신청자</span>
-              <span className="leave-detail__info-value">{request.employeeName} ({request.employeeNumber})</span>
+      {/* 좌우 2단 레이아웃 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'stretch' }}>
+
+        {/* ── 왼쪽: 결재 현황 ── */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div className="card__header">
+            <h3 className="card__title">결재 현황</h3>
+          </div>
+          <div className="card__body" style={{ flex: 1 }}>
+            <div className="approval-timeline">
+              {approvalSteps.map((s, idx) => (
+                <div key={s.id} className="approval-timeline__item">
+                  <div className="approval-timeline__connector">
+                    <div className={`approval-timeline__dot approval-timeline__dot--${s.status}`}>
+                      {s.status === 'approved' && '\u2713'}
+                      {s.status === 'rejected' && '\u2717'}
+                      {s.status === 'pending' && (idx + 1)}
+                    </div>
+                    {idx < approvalSteps.length - 1 && (
+                      <div className={`approval-timeline__line ${s.status === 'approved' ? 'approval-timeline__line--done' : ''}`} />
+                    )}
+                  </div>
+                  <div className="approval-timeline__content">
+                    <div className="approval-timeline__header">
+                      <span className="approval-timeline__type">
+                        {STEP_TYPE_LABELS[s.stepType] || s.stepType}
+                      </span>
+                      <StatusBadge status={s.status} size="sm" />
+                      {s.isDelegated ? <Badge variant="info" size="sm">대결</Badge> : null}
+                    </div>
+                    <div className="approval-timeline__assignee">
+                      {s.assignedName}
+                      {s.approverPosition && ` (${s.approverPosition})`}
+                      {s.approverDeptName && ` / ${s.approverDeptName}`}
+                    </div>
+                    <div className="approval-timeline__times">
+                      {s.readAt && (
+                        <span className="approval-timeline__time">
+                          {'\uD83D\uDC41'} 열람: {s.readAt}
+                        </span>
+                      )}
+                      {s.actedAt && (
+                        <span className="approval-timeline__time">
+                          {'\u270D'} 처리: {s.actedAt}
+                        </span>
+                      )}
+                    </div>
+                    {s.comment && (
+                      <div className="approval-timeline__comment">
+                        {s.comment}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">소속</span>
-              <span className="leave-detail__info-value">{request.departmentName}</span>
+          </div>
+        </div>
+
+        {/* ── 오른쪽: 신청 정보 + 열람 범위 + 연관 신청 ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* 신청 정보 */}
+          <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <div className="card__body" style={{ flex: 1, padding: 0 }}>
+              <table className="info-table">
+                <colgroup>
+                  <col style={{ width: '110px' }} />
+                  <col />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th colSpan={2} className="info-table__section-head">신청자 정보</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="info-table__label">신청자</td>
+                    <td className="info-table__value">{request.employeeName} ({request.employeeNumber})</td>
+                  </tr>
+                  <tr>
+                    <td className="info-table__label">소속</td>
+                    <td className="info-table__value">{request.departmentName}</td>
+                  </tr>
+                  <tr>
+                    <td className="info-table__label">신청일</td>
+                    <td className="info-table__value">{request.createdAt}</td>
+                  </tr>
+                </tbody>
+                <thead>
+                  <tr>
+                    <th colSpan={2} className="info-table__section-head">휴가 정보</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="info-table__label">휴가 유형</td>
+                    <td className="info-table__value">
+                      {request.leaveTypeName}
+                      {request.condolenceSubtypeName && ` - ${request.condolenceSubtypeName}`}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="info-table__label">기간</td>
+                    <td className="info-table__value">
+                      {request.startDate === request.endDate
+                        ? request.startDate
+                        : `${request.startDate} ~ ${request.endDate}`}
+                      {request.halfDayType === 'AM' && ' (오전 반차)'}
+                      {request.halfDayType === 'PM' && ' (오후 반차)'}
+                      {request.halfDayType === 'TIME' && ` (${request.timeStart} ~ ${request.timeEnd})`}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="info-table__label">신청 일수</td>
+                    <td className="info-table__value" style={{ fontWeight: 600, color: '#1B5E9E' }}>{request.totalDays}일</td>
+                  </tr>
+                  {request.reason && (
+                    <tr>
+                      <td className="info-table__label">사유</td>
+                      <td className="info-table__value">{request.reason}</td>
+                    </tr>
+                  )}
+                </tbody>
+                {(request.isUrgent || request.isRetroactive || request.recallReason) && (
+                  <>
+                    <thead>
+                      <tr>
+                        <th colSpan={2} className="info-table__section-head">추가 정보</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {request.isUrgent && request.urgentReason && (
+                        <tr>
+                          <td className="info-table__label">긴급 사유</td>
+                          <td className="info-table__value">{request.urgentReason}</td>
+                        </tr>
+                      )}
+                      {request.isRetroactive && (
+                        <tr>
+                          <td className="info-table__label">사후 신청</td>
+                          <td className="info-table__value">
+                            {request.retroactiveCategory}
+                            {request.retroactiveDetail && ` - ${request.retroactiveDetail}`}
+                          </td>
+                        </tr>
+                      )}
+                      {request.recallReason && (
+                        <tr>
+                          <td className="info-table__label">회수 사유</td>
+                          <td className="info-table__value">{request.recallReason}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </>
+                )}
+              </table>
             </div>
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">휴가 유형</span>
-              <span className="leave-detail__info-value">
-                {request.leaveTypeName}
-                {request.condolenceSubtypeName && ` - ${request.condolenceSubtypeName}`}
-              </span>
-            </div>
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">기간</span>
-              <span className="leave-detail__info-value">
-                {request.startDate === request.endDate
-                  ? request.startDate
-                  : `${request.startDate} ~ ${request.endDate}`}
-                {request.halfDayType === 'AM' && ' (오전 반차)'}
-                {request.halfDayType === 'PM' && ' (오후 반차)'}
-                {request.halfDayType === 'TIME' && ` (${request.timeStart} ~ ${request.timeEnd})`}
-              </span>
-            </div>
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">신청 일수</span>
-              <span className="leave-detail__info-value"><strong>{request.totalDays}일</strong></span>
-            </div>
-            <div className="leave-detail__info-item">
-              <span className="leave-detail__info-label">신청일</span>
-              <span className="leave-detail__info-value">{request.createdAt}</span>
-            </div>
-            {request.reason && (
-              <div className="leave-detail__info-item leave-detail__info-item--full">
-                <span className="leave-detail__info-label">사유</span>
-                <span className="leave-detail__info-value">{request.reason}</span>
+          </div>
+
+          {/* 열람 범위 */}
+          {visibility.length > 0 && (
+            <div className="card">
+              <div className="card__header">
+                <h3 className="card__title">열람 범위</h3>
               </div>
-            )}
-            {request.isUrgent && request.urgentReason && (
-              <div className="leave-detail__info-item leave-detail__info-item--full">
-                <span className="leave-detail__info-label">긴급 사유</span>
-                <span className="leave-detail__info-value">{request.urgentReason}</span>
+              <div className="card__body">
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {visibility.map(v => (
+                    <Badge key={v.departmentId} variant="neutral" size="sm">{v.departmentName}</Badge>
+                  ))}
+                </div>
               </div>
-            )}
-            {request.isRetroactive && (
-              <div className="leave-detail__info-item leave-detail__info-item--full">
-                <span className="leave-detail__info-label">사후 신청 사유</span>
-                <span className="leave-detail__info-value">
-                  {request.retroactiveCategory}
-                  {request.retroactiveDetail && ` - ${request.retroactiveDetail}`}
+            </div>
+          )}
+
+          {/* 연관 신청 */}
+          {parentRequest && (
+            <div className="card">
+              <div className="card__body">
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                  원본 신청:{' '}
+                  <Link to={`/leaves/${parentRequest.id}`} style={{ color: 'var(--color-primary)' }}>
+                    #{parentRequest.id} <ExternalLink size={12} style={{ verticalAlign: 'middle' }} />
+                  </Link>
+                  {' '}({parentRequest.status})
                 </span>
               </div>
-            )}
-            {request.recallReason && (
-              <div className="leave-detail__info-item leave-detail__info-item--full">
-                <span className="leave-detail__info-label">회수 사유</span>
-                <span className="leave-detail__info-value">{request.recallReason}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Approval Timeline */}
-      <div className="card" style={{ marginTop: '16px' }}>
-        <div className="card__header">
-          <h3 className="card__title">결재 현황</h3>
-        </div>
-        <div className="card__body">
-          <div className="approval-timeline">
-            {approvalSteps.map((s, idx) => (
-              <div key={s.id} className="approval-timeline__item">
-                <div className="approval-timeline__connector">
-                  <div className={`approval-timeline__dot approval-timeline__dot--${s.status}`}>
-                    {s.status === 'approved' && '\u2713'}
-                    {s.status === 'rejected' && '\u2717'}
-                    {s.status === 'pending' && (idx + 1)}
-                  </div>
-                  {idx < approvalSteps.length - 1 && (
-                    <div className={`approval-timeline__line ${s.status === 'approved' ? 'approval-timeline__line--done' : ''}`} />
-                  )}
-                </div>
-                <div className="approval-timeline__content">
-                  <div className="approval-timeline__header">
-                    <span className="approval-timeline__type">
-                      {STEP_TYPE_LABELS[s.stepType] || s.stepType}
-                    </span>
-                    <StatusBadge status={s.status} size="sm" />
-                    {s.isDelegated ? <Badge variant="info" size="sm">대결</Badge> : null}
-                  </div>
-                  <div className="approval-timeline__assignee">
-                    {s.assignedName}
-                    {s.approverPosition && ` (${s.approverPosition})`}
-                    {s.approverDeptName && ` / ${s.approverDeptName}`}
-                  </div>
-                  <div className="approval-timeline__times">
-                    {s.readAt && (
-                      <span className="approval-timeline__time">
-                        {'\uD83D\uDC41'} 열람: {s.readAt}
-                      </span>
-                    )}
-                    {s.actedAt && (
-                      <span className="approval-timeline__time">
-                        {'\u270D'} 처리: {s.actedAt}
-                      </span>
-                    )}
-                  </div>
-                  {s.comment && (
-                    <div className="approval-timeline__comment">
-                      {s.comment}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Visibility */}
-      {visibility.length > 0 && (
-        <div className="card" style={{ marginTop: '16px' }}>
-          <div className="card__header">
-            <h3 className="card__title">열람 범위</h3>
-          </div>
-          <div className="card__body">
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {visibility.map(v => (
-                <Badge key={v.departmentId} variant="neutral" size="sm">{v.departmentName}</Badge>
-              ))}
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Parent/Child request links */}
-      {parentRequest && (
-        <div className="card" style={{ marginTop: '16px' }}>
-          <div className="card__body">
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-              원본 신청:{' '}
-              <Link to={`/leaves/${parentRequest.id}`} style={{ color: 'var(--color-primary)' }}>
-                #{parentRequest.id} <ExternalLink size={12} style={{ verticalAlign: 'middle' }} />
-              </Link>
-              {' '}({parentRequest.status})
-            </span>
-          </div>
+          {childRequests.length > 0 && (
+            <div className="card">
+              <div className="card__body">
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+                  재기안 내역:{' '}
+                  {childRequests.map((c, idx) => (
+                    <React.Fragment key={c.id}>
+                      {idx > 0 && ', '}
+                      <Link to={`/leaves/${c.id}`} style={{ color: 'var(--color-primary)' }}>
+                        #{c.id} <ExternalLink size={12} style={{ verticalAlign: 'middle' }} />
+                      </Link>
+                      {' '}({c.status})
+                    </React.Fragment>
+                  ))}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-      {childRequests.length > 0 && (
-        <div className="card" style={{ marginTop: '16px' }}>
-          <div className="card__body">
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-              재기안 내역:{' '}
-              {childRequests.map((c, idx) => (
-                <React.Fragment key={c.id}>
-                  {idx > 0 && ', '}
-                  <Link to={`/leaves/${c.id}`} style={{ color: 'var(--color-primary)' }}>
-                    #{c.id} <ExternalLink size={12} style={{ verticalAlign: 'middle' }} />
-                  </Link>
-                  {' '}({c.status})
-                </React.Fragment>
-              ))}
-            </span>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Action buttons */}
       {isOwn && (

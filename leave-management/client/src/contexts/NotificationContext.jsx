@@ -15,6 +15,7 @@ export function NotificationProvider({ children }) {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const prevUnreadIdsRef = useRef(new Set());
+  const dismissedIdsRef = useRef(new Set());
   const pollTimerRef = useRef(null);
   const permissionRef = useRef('default');
 
@@ -34,26 +35,42 @@ export function NotificationProvider({ children }) {
     }
   }, [isAuthenticated]);
 
+  // Mark a notification as read on the server and update local state
+  const dismissBrowserNotification = useCallback((notifId) => {
+    dismissedIdsRef.current.add(notifId);
+    prevUnreadIdsRef.current.delete(notifId);
+    setUnreadCount((prev) => Math.max(0, prev - 1));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notifId ? { ...n, isRead: true } : n))
+    );
+    apiClient.put(`/notifications/${notifId}/read`).catch(() => {});
+  }, []);
+
   // Show browser notification for new items
   const showBrowserNotification = useCallback((notification) => {
     try {
       if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
         const n = new Notification(notification.title, {
           body: notification.message,
-          icon: '/favicon.ico'
+          icon: '/favicon.ico',
+          requireInteraction: true
         });
         n.onclick = () => {
           window.focus();
+          dismissBrowserNotification(notification.id);
           if (notification.targetUrl) {
             window.location.href = notification.targetUrl;
           }
           n.close();
         };
+        n.onclose = () => {
+          dismissBrowserNotification(notification.id);
+        };
       }
     } catch (e) {
       // Ignore notification errors
     }
-  }, []);
+  }, [dismissBrowserNotification]);
 
   // Fetch notifications from server
   const fetchNotifications = useCallback(async (options = {}) => {
@@ -111,7 +128,7 @@ export function NotificationProvider({ children }) {
         const prevIds = prevUnreadIdsRef.current;
 
         for (const notif of unreadNotifications) {
-          if (!prevIds.has(notif.id)) {
+          if (!prevIds.has(notif.id) && !dismissedIdsRef.current.has(notif.id)) {
             showBrowserNotification(notif);
           }
         }

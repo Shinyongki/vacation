@@ -27,7 +27,12 @@
       "Bash(rm -rf \"/c/신용기/vacation/leave-management/data\")",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"employee_number\":\"2021001\",\"password\":\"000101\"}')",
       "Bash(node -pe \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0,'utf8'\\)\\); d.data.user.name + ' isInitial=' + d.data.user.isInitialPassword\")",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(rm -rf dist)",
+      "Bash(npm run:*)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -382,6 +382,12 @@ img {
   overflow-x: hidden;
 }
 
+.app-content > * {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* --- Cards (§5.1, v1.1: 1px border for monitor visibility) --- */
 .card {
   background: #fff;
@@ -1872,16 +1878,59 @@ img {
   color: var(--color-text-primary);
 }
 
+/* --- Info Table (LeaveDetail 신청 정보) --- */
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.info-table__section-head {
+  text-align: left;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  background: #F3F5F7;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.info-table__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background: #FAFBFC;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  white-space: nowrap;
+  vertical-align: top;
+  font-weight: var(--font-weight-medium);
+}
+
+.info-table__value {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  line-height: 1.5;
+}
+
+.info-table tbody:last-child tr:last-child .info-table__label,
+.info-table tbody:last-child tr:last-child .info-table__value {
+  border-bottom: none;
+}
+
 /* --- Approval Timeline --- */
 .approval-timeline {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .approval-timeline__item {
   display: flex;
   gap: var(--spacing-lg);
-  min-height: 60px;
+  flex: 1;
+  min-height: 240px;
 }
 
 .approval-timeline__connector {
@@ -1920,7 +1969,7 @@ img {
 .approval-timeline__line {
   width: 2px;
   flex: 1;
-  min-height: 20px;
+  min-height: 96px;
   background: var(--color-border);
 }
 
@@ -1930,7 +1979,7 @@ img {
 
 .approval-timeline__content {
   flex: 1;
-  padding-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-2xl);
 }
 
 .approval-timeline__header {

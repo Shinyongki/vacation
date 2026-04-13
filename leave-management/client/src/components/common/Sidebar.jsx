@@ -169,7 +169,7 @@ const MENU_CONFIG = {
       ],
     },
     {
-      group: '데이��� 검증',
+      group: '데이터 검증',
       items: [
         { label: '데이터 검증', path: '/verification' },
       ],

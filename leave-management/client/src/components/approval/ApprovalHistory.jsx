@@ -80,7 +80,7 @@ const ApprovalHistory = () => {
     },
     {
       key: 'stepStatus',
-      label: '처리결���',
+      label: '처리결과',
       width: '80px',
       render: (val) => <StatusBadge status={val} size="sm" />,
     },
@@ -138,8 +138,8 @@ const ApprovalHistory = () => {
         columns={columns}
         data={data}
         loading={loading}
-        emptyMessage="결재 이력이 없습���다."
-        onRowClick={(row) => navigate(`/leaves/${row.requestId}`)}
+        emptyMessage="결재 이력이 없습니다."
+        onRowClick={(row) => navigate(`/leaves/${row.requestId}`, { state: { from: '/approvals/history' } })}
         pagination={{
           page,
           pageSize,

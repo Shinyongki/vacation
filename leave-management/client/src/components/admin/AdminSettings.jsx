@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Users, Calendar, GitBranch, UserCheck, CalendarDays, Settings, BarChart3 } from 'lucide-react';
 import EmployeeManagement from './EmployeeManagement';
 import LeaveTypeSettings from './LeaveTypeSettings';
@@ -18,8 +19,25 @@ const TABS = [
   { key: 'balances', label: '잔여일수 관리', icon: BarChart3 },
 ];
 
+const TAB_KEYS = TABS.map(t => t.key);
+
 const AdminSettings = () => {
-  const [activeTab, setActiveTab] = useState('employees');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    TAB_KEYS.includes(tabFromUrl) ? tabFromUrl : 'employees'
+  );
+
+  useEffect(() => {
+    if (TAB_KEYS.includes(tabFromUrl) && tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    setSearchParams({ tab: key });
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -55,7 +73,7 @@ const AdminSettings = () => {
           return (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => handleTabChange(tab.key)}
               style={{
                 display: 'flex',
                 alignItems: 'center',

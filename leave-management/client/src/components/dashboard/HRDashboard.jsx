@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Calendar, GitBranch, CalendarDays, Settings } from 'lucide-react';
+import { Users, Building2, Calendar, GitBranch, UserCheck, CalendarDays, Settings, BarChart3 } from 'lucide-react';
 import apiClient from '../../api/client';
 import DataTable from '../common/DataTable';
 import Badge from '../common/Badge';
@@ -10,8 +10,10 @@ const ICON_MAP = {
   Building2,
   Calendar,
   GitBranch,
+  UserCheck,
   CalendarDays,
   Settings,
+  BarChart3,
 };
 
 const HRDashboard = () => {

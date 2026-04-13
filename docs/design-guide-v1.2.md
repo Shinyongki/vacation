@@ -1,9 +1,9 @@
 # 휴가관리 시스템 — 디자인 가이드
 
 > 작성일: 2026.04.12
-> 버전: 1.0
+> 버전: 1.2 (2026.04.13 — 네이비 사이드바, Noto Sans KR 내장, v1.2 크기 체계, 아코디언/info-table/2단 레이아웃 추가, 보고서 PDF 스타일)
 > 디자인 방향: 공공기관(A) 기반 + SaaS(B) 마감 + 복지기관(C) 가이드 카드
-> 관련 문서: PRD v1.1, IA v1.1, 작업 지시서
+> 관련 문서: PRD v1.3, IA v1.3, 작업 지시서
 
 ---
 
@@ -39,7 +39,7 @@
 | Primary Light | ■ | `#E4EAF2` | 사이드바 활성 배경 |
 | Background | □ | `#F9FAFB` | 콘텐츠 영역 배경 |
 | Surface | □ | `#FFFFFF` | 카드, 테이블, 모달 배경 |
-| Sidebar BG | ■ | `#F6F7F9` | 사이드바 배경 |
+| Sidebar BG | ■ | `#1B3A5C` | 사이드바 배경 (네이비 다크) |
 | Border | □ | `#DDE1E7` | 카드 보더, 테이블 구분선 |
 | Border Light | □ | `#EEF0F2` | 테이블 행 구분선 |
 | Text Primary | ■ | `#333333` | 본문 텍스트 |
@@ -77,28 +77,31 @@
 ### 3.1 폰트
 
 ```
-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
 ```
 
-인터넷 불필요(로컬 전용)이므로 CDN 폰트 사용 불가. 시스템 기본 폰트 사용.
-Windows 시설 PC 기준 "맑은 고딕(Malgun Gothic)"이 기본.
+Noto Sans KR (풀 버전, ~2.4MB) 프로젝트 내장. @fontsource/noto-sans-kr 패키지 사용.
+Regular(400) + Medium(500) 두 가지 굵기. 인터넷 불필요.
+빌드 시 Vite가 자동으로 번들에 포함 → .exe 패키징에도 포함됨.
 
-### 3.2 크기 체계
+### 3.2 크기 체계 (v1.2)
 
 | 용도 | 크기 | 굵기 | 색상 |
 |------|:----:|:----:|------|
-| 페이지 제목 | 15px | 500 | `#1B3A5C` |
-| 섹션 제목 | 13px | 500 | `#1B3A5C` |
-| 본문 | 13px | 400 | `#333333` |
-| 테이블 헤더 | 11px | 500 | `#8A95A3` |
-| 테이블 셀 | 12px | 400 | `#333333` |
-| 라벨 | 12px | 400 | `#8A95A3` |
-| 배지 | 11px | 500 | (상태별 색상) |
-| 경로(breadcrumb) | 11px | 400 | `#5A6E82` |
-| 사이드바 메뉴 | 13px | 400/500 | `#5A6E82` / 활성: `#1B3A5C` |
-| 사이드바 그룹 | 11px | 500 | `#8A95A3` |
-| 히어로 숫자 (잔여일수) | 36px | 500 | `#1B5E9E` |
-| 숫자 단위 (일) | 14px | 400 | `#8A95A3` |
+| 페이지 제목 | **20px** | 500 | `#1B3A5C` |
+| 섹션 제목 | **17px** | 500 | `#1B3A5C` |
+| 본문 | **15px** | 400 | `#333333` |
+| 테이블 헤더 | **14px** | 500 | `#8A95A3` |
+| 테이블 셀 | **15px** | 400 | `#333333` |
+| 라벨 | **14px** | 400 | `#8A95A3` |
+| 배지 | **13px** | 500 | (상태별 색상) |
+| 버튼 텍스트 | **14px** | 500 | (버튼별 색상) |
+| 경로(breadcrumb) | **13px** | 400 | `#5A6E82` |
+| 사이드바 카테고리 | **13px** | 500 | `#93B3D1` |
+| 사이드바 메뉴 | **15px** | 400/500 | `#C8D8E8` / 활성: `#FFFFFF` |
+| 히어로 숫자 (잔여일수) | **44px** | 500 | `#1B5E9E` |
+| 숫자 단위 (일) | **15px** | 400 | `#8A95A3` |
+| 최소 폰트 | **13px** | 400 | — |
 
 ---
 
@@ -138,15 +141,36 @@ Windows 시설 PC 기준 "맑은 고딕(Malgun Gothic)"이 기본.
 - 텍스트: 11px, `#5A6E82`
 - 구분자: `>`
 
-### 4.4 사이드바 (192px)
+### 4.4 사이드바 (192px) — 네이비 다크 스타일
 
-- 배경: `#F6F7F9`
-- 우측 보더: 0.5px solid `#DDE1E7`
-- 활성 메뉴: 배경 `#E4EAF2`, 좌측 보더 3px solid `#1B5E9E`, 우측 라운드 8px, 텍스트 `#1B3A5C` 500
-- 비활성 메뉴: 텍스트 `#5A6E82` 400
-- 그룹 제목: 11px, 500, `#8A95A3`, letter-spacing 0.3px
-- 하위 메뉴 들여쓰기: padding-left 22px
-- 하단: 보더 top 0.5px, 사용자 정보 (부서, 이름·직위)
+- 배경: **`#1B3A5C`** (상단 헤더와 동일 계열)
+- border-right: 없음
+- box-shadow: 없음
+
+**카테고리 그룹 제목** (나의 공간, 휴가 관리, 현황, 정보 등):
+- font-size: 13px, font-weight: 500, color: `#93B3D1`
+- letter-spacing: 0.3px
+- padding: 10px 16px
+- margin-top: 20px (첫 번째 그룹 제외)
+- border-bottom: 1px solid rgba(255,255,255,0.08)
+
+**하위 메뉴 (비활성)**:
+- font-size: 15px, font-weight: 400, color: `#C8D8E8`
+- padding: 10px 16px 10px 24px (좌측 들여쓰기)
+- hover: background rgba(255,255,255,0.06)
+
+**하위 메뉴 (활성)**:
+- font-size: 15px, font-weight: 500, color: `#FFFFFF`
+- background: rgba(255,255,255,0.12)
+- border-left: 3px solid `#60A5FA`
+- padding: 10px 16px 10px 21px
+
+**아코디언 화살표**: color `#7A9AB8`, hover `#93B3D1`
+
+**하단 사용자 정보**:
+- border-top: 1px solid rgba(255,255,255,0.1)
+- 부서명: 12px, `#7A9AB8`
+- 이름·직위: 14px 500, `#FFFFFF`
 - 팀장·원장: 부재중 토글 (AbsenceToggle) 표시
 
 ### 4.5 반응형
@@ -355,6 +379,105 @@ Windows 시설 PC 기준 "맑은 고딕(Malgun Gothic)"이 기본.
 
 하단: [저장] 버튼
 안내: "미체크된 유형은 해당 고용형태 직원의 신청 폼에 표시되지 않습니다."
+```
+
+### 5.14 아코디언 (v1.3 신규)
+
+```
+휴가 규정 페이지(V-04)에서 사용하는 접기/펼치기 컴포넌트.
+
+컨테이너: 카드 스타일 (배경 #fff, 보더 1px solid #DDE1E7, 라운드 8px)
+항목 간격: margin-bottom 12px
+
+접힌 상태:
+  패딩: 14px 20px
+  좌측: ChevronRight 아이콘 (16px, #8A95A3)
+  제목: 17px 500 #1B3A5C
+  우측: 배지(유급/무급/여성 전용 등) pill 형태
+  hover: 배경 #FAFBFC
+
+펼친 상태:
+  아이콘: ChevronDown (16px, #1B5E9E)
+  제목 행 + border-bottom 1px solid #EEF0F2
+  내용 영역: padding 18px 20px
+
+독립 토글: 여러 항목 동시 펼침 가능
+기본 상태: 모두 접힘
+```
+
+### 5.15 info-table — 섹션 헤더 테이블 (v1.3 신규)
+
+```
+신청 상세(L-02)에서 사용하는 가로 라벨-값 테이블.
+
+전체: 보더 1px solid #DDE1E7, 라운드 8px, overflow hidden
+
+섹션 헤더 행 (info-table__section-head):
+  배경: #F3F5F7
+  텍스트: 14px 500 #1B3A5C
+  패딩: 10px 16px
+  colspan: 전체
+
+라벨 셀:
+  배경: #FAFBFC
+  텍스트: 14px 400 #5A6E82
+  패딩: 10px 16px
+  width: 120px (고정)
+
+값 셀:
+  배경: #FFFFFF
+  텍스트: 14px 400 #333333
+  패딩: 10px 16px
+
+행 구분: border-bottom 0.5px solid #EEF0F2
+```
+
+### 5.16 상세 페이지 2단 레이아웃 (v1.3 신규)
+
+```
+신청 상세(L-02)에서 사용하는 좌우 2단 구성.
+
+CSS Grid: gridTemplateColumns 1fr 1fr
+gap: 24px
+alignItems: stretch (좌우 높이 동일)
+
+좌측: 결재 현황 카드 (타임라인)
+  - flex: 1로 카드 높이에 맞춰 타임라인 균등 분배
+  - 단계 간 간격: min-height 96px (기존 대비 3배)
+  - 전체 min-height: 240px
+
+우측: 신청 정보 (info-table) + 열람 범위 + 연관 신청
+  - flex: 1로 좌측과 높이 맞춤
+```
+
+### 5.17 보고서 PDF 스타일 (v1.3 신규)
+
+```
+A4 세로 (595 x 842 points)
+여백: 상하 40pt, 좌우 40pt
+폰트: Noto Sans KR (프로젝트 내장)
+
+표지:
+  제목: 24px bold, 가운데 정렬
+  부제: 14px, 가운데
+  기간·생성정보: 14px
+
+테이블:
+  헤더 배경: #F3F5F7
+  헤더 텍스트: 13px 500 #8A95A3
+  셀 텍스트: 13px 400 #333
+  행 구분: 0.5px solid #EEF0F2
+  경고 행: 텍스트 #DC2626
+  잔여일수 음수: 행 전체 빨간 강조
+
+섹션 구분: 각 섹션 새 페이지 시작
+페이지 하단: "- N -" 페이지 번호 (가운데)
+
+검증 정보 박스:
+  배경: #F9FAFB
+  보더: 1px solid #EEF0F2
+  라운드: 6px
+  패딩: 12px 16px
 ```
 
 ---

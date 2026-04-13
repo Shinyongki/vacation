@@ -2,8 +2,8 @@
 
 > 재단법인 경상남도사회서비스원 산하 시설 납품용  
 > 작성일: 2026.04.11  
-> 버전: 1.2 (2026.04.12 최종 — 회수/재기안/재상신/열람범위/직원필드확장/고용형태별 휴가설정)  
-> 관련 문서: IA v1.2, Use Case v1.2, 데이터 무결성 검증 가이드 v1.0, 디자인 가이드 v1.0
+> 버전: 1.3 (2026.04.13 — 보고서 5섹션 구조, 알림 개선, 시스템설정 한글화, UI 레이아웃 변경)  
+> 관련 문서: IA v1.3, Use Case v1.3, 데이터 무결성 검증 가이드 v1.0, 디자인 가이드 v1.2
 
 ---
 
@@ -88,9 +88,9 @@
 | FR-02-14 | "긴급" 체크박스: 체크 시 긴급 사유 입력 필수. 결재자 + 대결자 동시 알림 | 필수 | |
 | FR-02-15 | 사후 신청 건은 결재 화면에서 "사후 신청" 배지 표시 | 필수 | |
 | FR-02-16 | 긴급 건은 결재 화면에서 "긴급" 배지 표시 | 필수 | |
-| FR-02-17 | 신청 폼 3단계에 열람 범위 설정: 팀별 체크박스로 공개할 부서 선택 | 필수 | **v1.1 신규** |
-| FR-02-18 | 내 팀은 기본 선택 (해제 가능). 미선택 시 어디에도 표시되지 않음 | 필수 | **v1.1 신규** |
-| FR-02-19 | 열람 범위에는 이름·유형·기간만 공개, 사유는 비공개 | 필수 | **v1.1 신규** |
+| FR-02-17 | 신청 폼 3단계에 열람 범위 설정: 팀별 체크박스로 공개할 부서 선택 | 필수 | v1.1 신규 |
+| FR-02-18 | 내 팀은 기본 선택 (해제 가능). 미선택 시 어디에도 표시되지 않음 | 필수 | v1.1 신규 |
+| FR-02-19 | 열람 범위에는 이름·유형·기간만 공개, 사유는 비공개 | 필수 | v1.1 신규 |
 
 ### FR-03. 결재 시스템
 
@@ -106,11 +106,11 @@
 | FR-03-08 | 반려 시 사유 입력 필수 + 신청자에게 알림 | 필수 | |
 | FR-03-09 | 원장: 일괄 승인 기능 (여러 건 동시 처리) | 필수 | |
 | FR-03-10 | 휴가 변경 = 기존 건 취소 후 재신청 (변경 기능 별도 없음) | 필수 | 코드 고정 |
-| FR-03-11 | 기안자가 결재 진행 중(pending) 건을 직접 회수 가능. 회수 시 결재 단계 초기화, 결재자에게 "회수됨" 알림 | 필수 | **v1.1 신규** |
-| FR-03-12 | 회수 시 회수 사유 입력 (선택). 건 상태가 recalled로 변경 | 필수 | **v1.1 신규** |
-| FR-03-13 | 회수된 건(recalled)에서 "재기안" → 이전 데이터 복사된 신청 폼. 제출 시 새 건 생성(pending) | 필수 | **v1.1 신규** |
-| FR-03-14 | 반려된 건(rejected)에서 "재상신" → 이전 데이터 + 반려 사유 표시된 신청 폼. 제출 시 새 건 생성(pending) | 필수 | **v1.1 신규** |
-| FR-03-15 | 재기안/재상신으로 생성된 새 건은 parent_request_id로 원본 건과 연결 (이력 추적) | 필수 | **v1.1 신규** |
+| FR-03-11 | 기안자가 결재 진행 중(pending) 건을 직접 회수 가능. 회수 시 결재 단계 초기화, 결재자에게 "회수됨" 알림 | 필수 | v1.1 신규 |
+| FR-03-12 | 회수 시 회수 사유 입력 (선택). 건 상태가 recalled로 변경 | 필수 | v1.1 신규 |
+| FR-03-13 | 회수된 건(recalled)에서 "재기안" → 이전 데이터 복사된 신청 폼. 제출 시 새 건 생성(pending) | 필수 | v1.1 신규 |
+| FR-03-14 | 반려된 건(rejected)에서 "재상신" → 이전 데이터 + 반려 사유 표시된 신청 폼. 제출 시 새 건 생성(pending) | 필수 | v1.1 신규 |
+| FR-03-15 | 재기안/재상신으로 생성된 새 건은 parent_request_id로 원본 건과 연결 (이력 추적) | 필수 | v1.1 신규 |
 
 ### FR-04. 대결 및 부재 관리 시스템
 
@@ -144,18 +144,21 @@
 | ID | 요구사항 | 우선순위 | 비고 |
 |----|---------|:-------:|------|
 | FR-06-01 | 앱 내 알림만 제공 (이메일/SMS 없음, 인터넷 불필요) | 필수 | |
-| FR-06-02 | 알림 유형 9가지: 결재 요청, 승인 완료, 반려 통보, 대결 요청, 취소 완료, 긴급 건 알림, 부재 자동 전환 알림, 미처리 경고 알림, **회수됨 알림** | 필수 | v1.1: 회수됨 추가 |
+| FR-06-02 | 알림 유형 9가지: 결재 요청, 승인 완료, 반려 통보, 대결 요청, 취소 완료, 긴급 건 알림, 부재 자동 전환 알림, 미처리 경고 알림, 회수됨 알림 | 필수 | v1.1: 회수됨 추가 |
 | FR-06-03 | 개별 읽음 처리 + 전체 읽음 처리 | 필수 | |
 | FR-06-04 | 알림 클릭 시 해당 화면으로 이동 | 필수 | |
 | FR-06-05 | 읽지 않은 알림 수 배지 표시 (사이드바) | 권장 | |
+| **FR-06-06** | **브라우저 알림(Web Notification API)은 requireInteraction: true로 사용자 확인 전까지 유지** | **필수** | **v1.3 신규** |
+| **FR-06-07** | **브라우저 알림 클릭 또는 닫기 시 서버에 읽음 처리(PUT /notifications/:id/read) → 재표시 방지** | **필수** | **v1.3 신규** |
+| **FR-06-08** | **세션 내 확인 완료된 알림 ID 추적(dismissedIdsRef)하여 폴링 시 재표시 방지** | **필수** | **v1.3 신규** |
 
 ### FR-07. 관리자 기능
 
 | ID | 요구사항 | 우선순위 | 비고 |
 |----|---------|:-------:|------|
-| FR-07-01 | 직원 등록 (사번, 이름, 부서, 직위, 역할, 입사일, 생년월일, **성별, 연락처, 고용형태**) | 필수 | **v1.2 수정: 필드 11개** |
+| FR-07-01 | 직원 등록 (사번, 이름, 부서, 직위, 역할, 입사일, 생년월일, 성별, 연락처, 고용형태) | 필수 | v1.2 수정: 필드 11개 |
 | FR-07-02 | 직원 수정 (부서·직위·역할 변경 = 인사이동) | 필수 | |
-| FR-07-03 | 퇴사 처리: status를 inactive로 변경 (데이터 보존, 로그인 차단). **퇴사일(resignation_date) 자동 기록** | 필수 | **v1.2 수정** |
+| FR-07-03 | 퇴사 처리: status를 inactive로 변경 (데이터 보존, 로그인 차단). 퇴사일(resignation_date) 자동 기록 | 필수 | v1.2 수정 |
 | FR-07-04 | "퇴사자 포함" 토글로 비활성화 직원 조회 가능 | 필수 | |
 | FR-07-05 | 경조사 세부유형 + 일수 수정 가능 | 필수 | |
 | FR-07-06 | 사후 신청 허용 유형 토글 (유형별 ON/OFF) | 필수 | |
@@ -164,14 +167,16 @@
 | FR-07-09 | 팀장 열람 범위 설정 (내 팀만 / 전체) | 필수 | 기본: 내 팀만 |
 | FR-07-10 | 시설 자체 휴일 등록·삭제 | 필수 | |
 | FR-07-11 | 엑셀 업로드 → 필드 매핑 → 미리보기 → 일괄 등록 (데이터 이전) | 필수 | |
-| FR-07-12 | **성별 기반 휴가 유형 필터링: 생리휴가는 여성만, 출산휴가는 여성만 신청 가능. 해당되지 않는 유형은 신청 폼에서 비활성화** | 필수 | **v1.2 신규** |
-| FR-07-13 | **고용형태별 사용 가능 휴가 유형을 HR관리자가 설정. 해당되지 않는 유형은 신청 폼에서 비활성화** | 필수 | **v1.2 신규** |
+| FR-07-12 | 성별 기반 휴가 유형 필터링: 생리휴가는 여성만, 출산휴가는 여성만 신청 가능. 해당되지 않는 유형은 신청 폼에서 비활성화 | 필수 | v1.2 신규 |
+| FR-07-13 | 고용형태별 사용 가능 휴가 유형을 HR관리자가 설정. 해당되지 않는 유형은 신청 폼에서 비활성화 | 필수 | v1.2 신규 |
+| **FR-07-14** | **시스템 설정(S-06) UI 한글화: 영어 키 대신 한글 라벨 표시, boolean/enum 값은 드롭다운 선택 방식** | **필수** | **v1.3 신규** |
+| **FR-07-15** | **HR 대시보드(D-04) 관리 메뉴 바로가기 7개: URL 쿼리 파라미터(/admin?tab=) 기반 탭 전환. 대결자 관리 바로가기 포함** | **필수** | **v1.3 신규** |
 
 ### FR-08. 보고서·현황
 
 | ID | 요구사항 | 우선순위 | 비고 |
 |----|---------|:-------:|------|
-| FR-08-01 | 팀 캘린더: 월별 뷰. 승인된 휴가 중 기안자가 열람 범위에 해당 팀을 포함한 건만 표시 (이름+유형+기간, 사유 비공개). 공휴일·자체휴일 표시. 팀장·원장·HR은 권한으로 전체 열람 가능 | 필수 | **v1.1 수정** |
+| FR-08-01 | 팀 캘린더: 월별 뷰. 승인된 휴가 중 기안자가 열람 범위에 해당 팀을 포함한 건만 표시 (이름+유형+기간, 사유 비공개). 공휴일·자체휴일 표시. 팀장·원장·HR은 권한으로 전체 열람 가능 | 필수 | v1.1 수정 |
 | FR-08-02 | 팀원 현황: 팀원별 잔여일수 테이블 | 필수 | |
 | FR-08-03 | 전체 현황: 전 직원 휴가 현황, 부서별 필터 | 필수 | |
 | FR-08-04 | 사용 현황 보고서: 부서별·기간별 통계 | 필수 | |
@@ -181,6 +186,10 @@
 | FR-08-08 | 내보내기 시 export_logs에 이력 자동 기록 | 필수 | |
 | FR-08-09 | 재단담당자: 열람 전용 (수정·승인 불가), 메뉴 3개 표시 | 필수 | 시설현황, 보고서, 데이터검증 |
 | FR-08-10 | 재단담당자: 열람 범위 근거 안내 배너 표시 | 필수 | |
+| **FR-08-11** | **보고서 PDF/Excel 5개 섹션 구조: ①표지+총괄요약(직원별 연차 현황) ②사용 상세(결재완료일·최종승인자 포함) ③결재 이력 상세(건별 결재 단계, 대결/즉시처리 통계) ④수동 조정 이력(자동 경고 포함) ⑤검증 정보(검증 방법 안내)** | **필수** | **v1.3 신규** |
+| **FR-08-12** | **보고서 총괄 요약에 직원별 발생일수·사용일수·조정일수·잔여일수·소진율 표시. 잔여일수 음수 시 빨간 강조** | **필수** | **v1.3 신규** |
+| **FR-08-13** | **결재 이력 섹션: 열람~결재 1분 이내 건(형식적 결재 의심) 표시, 대결 처리 비율 통계** | **필수** | **v1.3 신규** |
+| **FR-08-14** | **조정 이력 섹션: 보고 직전 대량 조정(7일내 5건+), 반복 조정(동일인 3회+), 사유 불명확 건 자동 경고** | **필수** | **v1.3 신규** |
 
 ### FR-09. 휴가 규정 안내
 
@@ -189,6 +198,8 @@
 | FR-09-01 | 유형별 규정 열람 페이지 (일수, 조건, 첨부 요건) | 필수 | |
 | FR-09-02 | 경조사 세부 유형 일수표 포함 (2025.3.27 개정 반영) | 필수 | 배우자 출산 20일, 3회 분할 등 |
 | FR-09-03 | 병가 규정: 일반 60일 / 업무상 180일 / 6일 초과 시 진단서 | 필수 | |
+| **FR-09-04** | **규정 페이지 아코디언 구조: 8개 항목(연차, 병가, 공가, 경조사, 출산, 생리, 포상, 공통규정)을 접기/펼치기로 구성. 기본 상태 모두 접힘. 여러 항목 동시 펼침 가능. 접힌 상태에서도 배지(유급/무급/여성전용 등) 표시** | **필수** | **v1.3 신규** |
+| **FR-09-05** | **각 규정 항목에 복무규정 조항 번호(근거) 명시. 중요 수치 하이라이트 표시** | **필수** | **v1.3 신규** |
 
 ### FR-10. 데이터 무결성 검증
 
@@ -202,6 +213,7 @@
 | FR-10-06 | 조정 이력에서 보고 직전 대량 조정 시 경고 표시 | 필수 | |
 | FR-10-07 | balance_adjustments 테이블은 INSERT만 가능, UPDATE/DELETE 불가 | 필수 | |
 | FR-10-08 | export_logs 테이블은 INSERT만 가능, UPDATE/DELETE 불가 | 필수 | |
+| **FR-10-09** | **검증코드 계산 범위: 총괄요약 + 사용상세 + 결재이력 + 조정이력 4개 데이터셋을 JSON.stringify → HMAC-SHA256** | **필수** | **v1.3 신규** |
 
 ---
 
@@ -262,24 +274,25 @@
 
 | 구분 | 기술 |
 |------|------|
-| 프론트엔드 | React |
+| 프론트엔드 | React + Noto Sans KR (내장) |
 | 백엔드 | Node.js + Express |
 | 데이터베이스 | SQLite |
 | 패키징 | Node.js SEA (Single Executable Applications) → .exe |
 | 통신 | REST API (JSON) |
+| 폰트 | @fontsource/noto-sans-kr (풀 버전 내장, 인터넷 불필요) |
 
 ### 5.2 DB 테이블 (18개)
 
 **인력 관리**
 - departments — 부서/팀 (id, name, parent_id)
-- employees — 직원 (id, employee_number, name, password_hash, role, department_id, hire_date, birth_date, **gender[M/F]**, position, position_rank, **phone**, **employment_type[regular/contract]**, status[active/inactive], is_absent, absent_return_date, is_initial_password, **resignation_date**, created_at, updated_at)
+- employees — 직원 (id, employee_number, name, password_hash, role, department_id, hire_date, birth_date, gender[M/F], position, position_rank, phone, employment_type[regular/contract], status[active/inactive], is_absent, absent_return_date, is_initial_password, resignation_date, created_at, updated_at)
 
 **휴가 유형**
 - leave_types — 7가지 유형 (id, name, code, default_days, requires_attachment, allows_retroactive)
 - condolence_subtypes — 경조사 세부유형 (id, leave_type_id, name, days, description)
 
 **휴가 신청·결재**
-- leave_requests — 신청 건 (id, employee_id, leave_type_id, condolence_subtype_id, start_date, end_date, half_day_type[null/AM/PM/TIME], time_start, time_end, total_days, reason, is_urgent, urgent_reason, is_retroactive, retroactive_category, retroactive_detail, status[**draft**/pending/approved/rejected/**recalled**/cancelled], **parent_request_id**, **recall_reason**, created_at)
+- leave_requests — 신청 건 (id, employee_id, leave_type_id, condolence_subtype_id, start_date, end_date, half_day_type[null/AM/PM/TIME], time_start, time_end, total_days, reason, is_urgent, urgent_reason, is_retroactive, retroactive_category, retroactive_detail, status[draft/pending/approved/rejected/recalled/cancelled], parent_request_id, recall_reason, created_at)
 - approval_flows — 결재 라인 템플릿 (id, name, description)
 - approval_flow_steps — 라인 내 각 단계 (id, flow_id, step_order, step_type[draft/cooperation/review/approval], assignee_type[self/role/department/person], assignee_position, assignee_department_id, assignee_employee_id)
 - approval_steps — 실제 결재 이력 (id, request_id, step_order, step_type, assigned_to, acted_by, is_delegated, status[pending/approved/rejected], approver_position, approver_dept_name, read_at, acted_at, comment)
@@ -297,10 +310,10 @@
 - export_logs — 내보내기 이력 (id, exported_by, export_type[usage/summary], date_from, date_to, verification_code, file_hash, created_at) ※ INSERT만 가능
 
 **열람 범위 (v1.1 신규)**
-- **leave_request_visibility** — 기안자 열람 범위 설정 (id, request_id, department_id). 기안자가 선택한 팀 목록. 승인 후 해당 팀 캘린더에만 표시. UNIQUE(request_id, department_id)
+- leave_request_visibility — 기안자 열람 범위 설정 (id, request_id, department_id). UNIQUE(request_id, department_id)
 
 **고용형태별 휴가 설정 (v1.2 신규)**
-- **employment_type_leave_mapping** — 고용형태별 사용 가능 휴가 유형 (id, employment_type, leave_type_id, is_allowed). HR관리자가 설정. 정규직/계약직별로 어떤 휴가 유형을 사용할 수 있는지 체크박스로 관리
+- employment_type_leave_mapping — 고용형태별 사용 가능 휴가 유형 (id, employment_type, leave_type_id, is_allowed)
 
 ### 5.3 API 구조 (58개 엔드포인트, 9개 도메인)
 
@@ -317,8 +330,8 @@
 - GET /:id — 신청 상세
 - POST /:id/cancel — 신청 취소
 - GET /team-status — 해당일 팀 출근 현황
-- **POST /:id/recall** — 기안자 회수. pending→recalled, 결재 초기화, 결재자에게 알림 **(v1.1 신규)**
-- **POST /:id/redraft** — 재기안/재상신. recalled/rejected 건의 데이터 복사 → 새 pending 건 생성. parent_request_id 연결 **(v1.1 신규)**
+- POST /:id/recall — 기안자 회수. pending→recalled, 결재 초기화, 결재자에게 알림 (v1.1 신규)
+- POST /:id/redraft — 재기안/재상신. recalled/rejected 건의 데이터 복사 → 새 pending 건 생성. parent_request_id 연결 (v1.1 신규)
 
 **잔여일수 (/api/balances)** — 3개
 - GET /me — 내 잔여일수
@@ -336,7 +349,7 @@
 - GET /staff — 직원 대시보드 데이터
 - GET /team-lead — 팀장 대시보드 데이터
 - GET /director — 원장 대시보드 데이터
-- GET /hr — HR관리자 대시보드 데이터
+- GET /hr — HR관리자 대시보드 데이터 (바로가기 7개: /admin?tab= 경로 포함)
 - GET /foundation — 재단 대시보드 데이터
 
 **알림 (/api/notifications)** — 3개
@@ -375,7 +388,7 @@
 **보고서 (/api/reports)** — 3개
 - GET /usage — 사용 현황 보고서
 - GET /summary — 요약 보고서
-- GET /export — 엑셀 + PDF 동시 생성 (zip), export_logs에 자동 기록
+- GET /export — 엑셀 + PDF 동시 생성 (zip), 5개 섹션 구조, export_logs에 자동 기록
 
 **데이터 검증 (/api/verification)** — 3개 (재단담당자 전용)
 - POST /verify — 검증코드 입력 → 해시 재계산 → 원본 확인 / 변경 감지
@@ -438,12 +451,12 @@
 | BR-05-02 | 어느 단계에서든 반려 가능 → 전체 반려 |
 | BR-05-03 | 반려 시 사유 입력 필수 |
 | BR-05-04 | 취소는 최종 승인 전까지만 가능. 취소 시 건 종료, 재기안 불가 |
-| BR-05-04a | **회수는 최종 승인 전까지만 가능. 회수 시 recalled 상태, 재기안 가능** |
+| BR-05-04a | 회수는 최종 승인 전까지만 가능. 회수 시 recalled 상태, 재기안 가능 |
 | BR-05-05 | 최종 승인 후 취소 시 → 취소 재신청 절차 |
 | BR-05-06 | 결재 이력은 수정·삭제 불가 |
-| BR-05-07 | **반려된 건 → 재상신 가능 (이전 데이터 복사, 반려 사유 참고하여 수정 후 제출)** |
-| BR-05-08 | **회수된 건 → 재기안 가능 (이전 데이터 복사, 자유 수정 후 제출)** |
-| BR-05-09 | **재상신/재기안으로 생성된 건은 parent_request_id로 원본 연결. 이력 추적 가능** |
+| BR-05-07 | 반려된 건 → 재상신 가능 (이전 데이터 복사, 반려 사유 참고하여 수정 후 제출) |
+| BR-05-08 | 회수된 건 → 재기안 가능 (이전 데이터 복사, 자유 수정 후 제출) |
+| BR-05-09 | 재상신/재기안으로 생성된 건은 parent_request_id로 원본 연결. 이력 추적 가능 |
 
 ### BR-06. 대결 및 부재 관리
 
@@ -470,20 +483,42 @@
 | BR-07-05 | 열람 범위 미설정 시 어디에도 표시되지 않음 |
 | BR-07-06 | 팀장·원장·HR은 역할 권한으로 전체 열람 가능 (열람 범위 설정과 별개) |
 
+### BR-08. 브라우저 알림 (v1.3 신규)
+
+| 규칙 | 내용 |
+|------|------|
+| BR-08-01 | 브라우저 알림은 requireInteraction: true로 사용자 확인 전까지 유지 |
+| BR-08-02 | 알림 클릭 시: 서버에 읽음 처리 + 해당 페이지로 이동 |
+| BR-08-03 | 알림 닫기(X) 시: 서버에 읽음 처리 |
+| BR-08-04 | 세션 내 확인 완료된 알림 ID 추적(dismissedIdsRef) → 폴링 시 재표시 방지 |
+
+### BR-09. 보고서 검증 (v1.3 신규)
+
+| 규칙 | 내용 |
+|------|------|
+| BR-09-01 | 검증코드: 총괄요약 + 사용상세 + 결재이력 + 조정이력 전체 데이터를 JSON.stringify → HMAC-SHA256 |
+| BR-09-02 | PDF/Excel 모두 동일 5섹션 구조 |
+| BR-09-03 | 자동 경고: 보고 직전 대량 조정(7일내 5건+), 반복 조정(동일인 3회+), 사유 불명확 |
+| BR-09-04 | 결재 이력: 즉시 처리(열람~결재 1분 이내) 건 표시, 대결 비율 통계 |
+
 ---
 
-## 7. 관리자 설정 항목 (8개, 코드 고정 제외)
+## 7. 관리자 설정 항목 (12개)
 
-| # | 설정 항목 | 기본값 | 설명 |
-|---|----------|--------|------|
-| 1 | 승인 라인 구조 | 기안→협조→검토→협조→결재 | 단계 수 제한 없이 유연 구성. 유형별 다른 라인 가능 |
-| 2 | 사후 신청 허용 사유 | 6가지 열거 (BR-04 참조) | 사유 추가·제거 가능 |
-| 3 | 반차 시간 구분 | 오전 09:00~14:00 / 오후 14:00~18:00 | 경계 시각 설정 가능 |
-| 4 | 동시 휴가 인원 제한 | 제한 없음 (정보 표시만) | 팀별 설정 가능 |
-| 5 | 연차 자동 계산 | ON + HR 수동 조정 가능 | |
-| 6 | 시설 자체 휴일 | 없음 (공휴일만) | |
-| 7 | 팀장 열람 범위 | 자기 팀만 | 전체 열람으로 변경 가능 |
-| 8 | 자동 대결 전환 시간 | 긴급 즉시 / 단기 8시간 / 일반 24시간 | 시설 상황에 맞게 조정 가능 |
+| # | 설정 키 | 한글 라벨 | 기본값 | 입력 방식 |
+|---|---------|----------|--------|----------|
+| 1 | approval_line_structure | 결재 라인 구조 | 기안→협조→검토→협조→결재 | 텍스트 |
+| 2 | retroactive_reasons | 사후 신청 허용 사유 | 6가지 열거 | 텍스트에어리어 |
+| 3 | half_day_am_time | 오전 반차 시간 | 09:00~14:00 | 텍스트 |
+| 4 | half_day_pm_time | 오후 반차 시간 | 14:00~18:00 | 텍스트 |
+| 5 | concurrent_leave_limit | 동시 휴가 인원 제한 | 0 (제한 없음) | 텍스트 |
+| 6 | auto_annual_calc | 연차 자동 계산 | 사용 | 드롭다운 (사용/사용 안 함) |
+| 7 | team_lead_view_scope | 팀장 열람 범위 | 소속 팀만 | 드롭다운 (소속 팀만/전체) |
+| 8 | delegate_urgent_hours | 긴급 대결 전환 시간 | 즉시 | 텍스트 |
+| 9 | delegate_short_hours | 단기 부재 대결 전환 시간 | 8시간 | 텍스트 |
+| 10 | delegate_normal_hours | 일반 부재 대결 전환 시간 | 24시간 | 텍스트 |
+| 11 | work_start_time | 근무 시작 시간 | 09:00 | 텍스트 |
+| 12 | work_end_time | 근무 종료 시간 | 18:00 | 텍스트 |
 
 ---
 
@@ -544,15 +579,18 @@
 
 ---
 
-## 12. v1.2 변경 이력
+## 12. 변경 이력
 
-| 항목 | v1.0 | v1.2 | 변경 |
-|------|:----:|:----:|:----:|
-| 기능 요구사항 (FR) | 68개 | 75개 | +7 |
-| 비기능 요구사항 (NFR) | 16개 | 16개 | — |
-| 비즈니스 규칙 (BR) | 30개 | 36개 | +6 |
-| DB 테이블 | 16개 | 18개 | +2 (leave_request_visibility, employment_type_leave_mapping) |
-| API 엔드포인트 | 56개 | 58개 | +2 (recall, redraft) |
-| 알림 유형 | 8개 | 9개 | +1 (회수됨) |
-| 상태값 | 4개 | 6개 | +2 (draft, recalled) |
-| 직원 등록 필드 | 7개 | 11개 | +4 (성별, 연락처, 고용형태, 퇴사일) |
+| 항목 | v1.0 | v1.2 | v1.3 | 변경 (v1.3) |
+|------|:----:|:----:|:----:|:----------:|
+| 기능 요구사항 (FR) | 68개 | 75개 | **84개** | +9 (알림3, 보고서4, 규정2) |
+| 비기능 요구사항 (NFR) | 16개 | 16개 | 16개 | — |
+| 비즈니스 규칙 (BR) | 30개 | 36개 | **44개** | +8 (알림4, 보고서4) |
+| DB 테이블 | 16개 | 18개 | 18개 | — |
+| API 엔드포인트 | 56개 | 58개 | 58개 | — |
+| 알림 유형 | 8개 | 9개 | 9개 | — |
+| 상태값 | 4개 | 6개 | 6개 | — |
+| 직원 등록 필드 | 7개 | 11개 | 11개 | — |
+| 관리자 설정 항목 | 8개 | 8개 | **12개** | +4 (대결전환 시간 분리, 근무시간) |
+| 보고서 섹션 | 1개 | 1개 | **5개** | +4 (총괄요약, 결재이력, 조정이력, 검증보강) |
+| 폰트 | 시스템 | 시스템 | **Noto Sans KR** | 내장 |

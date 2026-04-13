@@ -53,7 +53,7 @@ const ApprovalList = () => {
         fetchData();
       }
     } catch (err) {
-      alert(err?.error || '승인 처리 중 오���가 발생했습니다.');
+      alert(err?.error || '승인 처리 중 오류가 발생했습니다.');
     } finally {
       setActionLoading(false);
     }
@@ -70,7 +70,7 @@ const ApprovalList = () => {
         fetchData();
       }
     } catch (err) {
-      alert(err?.error || '반려 처�� 중 오류가 발생했습니다.');
+      alert(err?.error || '반려 처리 중 오류가 발생했습니다.');
     } finally {
       setActionLoading(false);
     }
@@ -89,7 +89,7 @@ const ApprovalList = () => {
         fetchData();
       }
     } catch (err) {
-      alert(err?.error || '일괄 승인 처��� 중 오���가 발생했습니다.');
+      alert(err?.error || '일괄 승인 처리 중 오류가 발생했습니다.');
     } finally {
       setActionLoading(false);
     }
@@ -137,7 +137,7 @@ const ApprovalList = () => {
     }] : []),
     {
       key: 'applicantName',
-      label: '신청���',
+      label: '신청자',
       width: '100px',
       render: (val, row) => (
         <span>
@@ -179,7 +179,7 @@ const ApprovalList = () => {
     },
     {
       key: 'approvalSteps',
-      label: '결재현���',
+      label: '결재현황',
       width: '140px',
       sortable: false,
       render: (val, row) => (
@@ -252,7 +252,7 @@ const ApprovalList = () => {
         data={data}
         loading={loading}
         emptyMessage="승인 대기 항목이 없습니다."
-        onRowClick={(row) => navigate(`/leaves/${row.requestId}`)}
+        onRowClick={(row) => navigate(`/leaves/${row.requestId}`, { state: { from: '/approvals' } })}
         pagination={{
           page,
           pageSize,

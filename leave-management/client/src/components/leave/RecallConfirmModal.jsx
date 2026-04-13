@@ -31,7 +31,7 @@ const RecallConfirmModal = ({
             닫기
           </button>
           <button className="btn btn--primary" onClick={handleConfirm} disabled={loading}>
-            {loading ? '처리 중...' : '���수하기'}
+            {loading ? '처리 중...' : '회수하기'}
           </button>
         </div>
       }

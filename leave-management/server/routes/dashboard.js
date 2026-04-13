@@ -326,12 +326,13 @@ router.get('/hr', authenticateToken, (req, res) => {
 
     // 4. Settings quick links
     const settingsQuickLinks = [
-      { label: '직원 관리', path: '/admin/employees', icon: 'Users' },
-      { label: '부서 관리', path: '/admin/departments', icon: 'Building2' },
-      { label: '휴가 유형', path: '/admin/leave-types', icon: 'Calendar' },
-      { label: '결재 흐름', path: '/admin/approval-flows', icon: 'GitBranch' },
-      { label: '공휴일 관리', path: '/admin/holidays', icon: 'CalendarDays' },
-      { label: '시스템 설정', path: '/admin/settings', icon: 'Settings' },
+      { label: '직원 관리', path: '/admin?tab=employees', icon: 'Users' },
+      { label: '휴가 유형', path: '/admin?tab=leaveTypes', icon: 'Calendar' },
+      { label: '결재 라인', path: '/admin?tab=approvalFlows', icon: 'GitBranch' },
+      { label: '대결자 관리', path: '/admin?tab=delegates', icon: 'UserCheck' },
+      { label: '휴일 관리', path: '/admin?tab=holidays', icon: 'CalendarDays' },
+      { label: '시스템 설정', path: '/admin?tab=settings', icon: 'Settings' },
+      { label: '잔여일수 관리', path: '/admin?tab=balances', icon: 'Building2' },
     ];
 
     res.json({
